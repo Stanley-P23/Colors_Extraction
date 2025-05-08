@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Colors Extraction</title>
+
+    <link
+      rel="icon"
+      type="image/x-icon"
+      href="{{ url_for('static', filename='assets/pens.ico') }}"
+    />
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+
+<style>
+
+      /* Hide the left column on screens smaller than 768px */
+        @media (min-width: 768px) {
+            .left {
+                display: none; /* Hide the left column */
+            }
+
+</style>
+
+
+    <style>
+
+
+        /* Ensure container is full width without padding */
+        .container-fluid {
+            padding: 0;
+            height: 100vh; /* Full viewport height */
+            margin: 0;
+        }
+
+        /* Remove margin for the row */
+        .row {
+            margin: 0;
+        }
+
+
+        .color-message {
+        margin-top: 10px;
+        font-size: 18px;
+        color: #333; /* Adjust color as needed */
+        font-weight: bold; /* Make the text bold */
+}
+
+
+        /* Full height for left column */
+        .left {
+            height: 100vh; /* Full viewport height */
+            background-image: url("{{ url_for('static', filename='assets/photos/pens.jpg') }}"); /* Replace with your image URL */
+            background-size: cover;
+            background-position: center;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* No padding for other columns */
+        .col-md-6,
+        .col-md-3 {
+            padding: 0;
+        }
+
+        .color-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .color-box {
+            width: 70px;
+            height: 70px;
+            border: 1px solid #ccc;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            text-shadow: 0 0 2px rgba(0, 0, 0, 0.5);
+            font-size: 14px;
+            font-weight: bold;
+            text-align: center;
+            line-height: 100px;
+            cursor: pointer;
+        }
+
+        .image-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: auto; /* Adjust height to fit content */
+        }
+
+        .image-container img {
+            display: block; /* Remove any extra space below the image */
+            max-width: 400px;
+            height: auto; /* Maintain aspect ratio */
+        }
+
+        .slider-container {
+            margin: 20px 0;
+            max-width: 100%; /* Ensure it fits within the column width */
+        }
+
+        .slider {
+            width: 100%; /* Make sliders take full width of container */
+        }
+
+        .slider-label {
+            margin-bottom: 5px;
+        }
+
+        .slider-value {
+            font-weight: bold;
+        }
+
+        /* Custom styling for the slider thumb */
+        .form-range {
+            -webkit-appearance: none;
+            appearance: none;
+            background: transparent; /* Make background transparent */
+        }
+
+        .form-range::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 24px;
+            height: 24px;
+            background: #198754; /* Bootstrap success color */
+            border-radius: 50%;
+            cursor: pointer;
+        }
+
+        .form-range::-moz-range-thumb {
+            width: 24px;
+            height: 24px;
+            background: #198754; /* Bootstrap success color */
+            border-radius: 50%;
+            cursor: pointer;
+        }
+
+        /* Hide the default file input */
+        .file-input {
+            display: none;
+        }
+
+        /* Custom file input button */
+        .custom-file-upload {
+            border: 1px solid #ccc;
+            display: inline-block;
+            padding: 6px 12px;
+            cursor: pointer;
+            background-color: #198754;
+            color: white;
+            border-radius: 10px;
+            font-size: 16px;
+        }
+
+        .custom-file-upload:hover {
+            background-color: #155d27;
+        }
+    </style>
+    <script>
+        function autoSubmit() {
+            document.getElementById('uploadForm').submit();
+        }
+
+        function triggerFileInput() {
+            document.getElementById('fileInput').click();
+        }
+
+        // Add an event listener to the file input to trigger autoSubmit() when a file is selected
+        function setupFileInput() {
+            const fileInput = document.getElementById('fileInput');
+            fileInput.addEventListener('change', function() {
+                if (fileInput.files.length > 0) {
+                    autoSubmit();
+                }
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', setupFileInput);
+    </script>
+</head>
+<body>
+    <!-- Main Content -->
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-2 left">
+            </div>
+            <div class="col-md-7 pt-4 px-5">
+                <form id="uploadForm" action="/upload" method="post" enctype="multipart/form-data">
+                    <input type="file" id="fileInput" name="file" class="file-input">
+                    <label class="custom-file-upload" for="fileInput" >
+                        Choose Image to extract colors from
+                    </label>
+                </form>
+
+                {% if filename %}
+                <p>Filename: {{ filename }}</p>
+                <div class="image-container py-3">
+
+
+                    <img src="{{ url_for('static', filename='uploads/' + filename) }}"  class="img-fluid" alt="Uploaded Image">
+                </div>
+
+                {% if similar %}
+                <h2>Extracted colors:</h2>
+                <div class="color-container">
+                    {% for color in similar %}
+                    <div class="color-box" data-color="{{ color }}" style="background-color: {{ color }};">{{ color }}</div>
+                    {% endfor %}
+
+                </div>
+
+                {% endif %}
+
+            </div>
+            <div class="col-md-3 py-4 px-5">
+                         <form action="/extract" method="post">
+
+             <input type="hidden" name="filename" value="{{ filename }}">
+
+            <div class="mb-3">
+                <label for="slider1" class="form-label slider-label">Include smaller details:</label>
+                <input type="range" class="form-range" id="slider1" name="slider1" min="20" max="60000" step="5" value={{details}}>
+                <div style = "align-items: center; justify-content: center; display: flex;" id="slider1-value">{{details}}</div>
+
+            </div>
+
+            <div class="mb-3">
+                <label for="slider2" class="form-label slider-label">Average similar colors:</label>
+                <input type="range" class="form-range" id="slider2" name="slider2" min="10" max="150" step="1" value={{average}}>
+                <div style = "align-items: center; justify-content: center; display: flex;" id="slider2-value">{{average}}</div>
+
+
+
+            </div>
+
+            <button type="submit" class="btn btn-success">Extract colors</button>
+        </form>{% endif %}
+                                <div id="color-message" class="color-message pt-3"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS and dependencies -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/2.11.6/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/5.3.0/js/bootstrap.min.js"></script>
+
+    <script>
+      // Function to copy text to clipboard
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(function() {
+                console.log('Copying to clipboard was successful!');
+            }, function(err) {
+                console.error('Could not copy text: ', err);
+            });
+        }
+
+        // Get the color message element
+        const colorMessageElement = document.getElementById('color-message');
+
+        // Add event listeners to all color boxes
+        document.querySelectorAll('.color-box').forEach(function(box) {
+            box.addEventListener('click', function() {
+                const color = box.getAttribute('data-color');
+                copyToClipboard(color);
+                colorMessageElement.textContent = `Color ${color} copied to clipboard!`;
+                colorMessageElement.style.color = color; // Set text color to the copied color
+            });
+        });
+
+
+        // Update slider value display
+        document.getElementById('slider1').addEventListener('input', function() {
+            document.getElementById('slider1-value').textContent = this.value;
+        });
+        document.getElementById('slider2').addEventListener('input', function() {
+            document.getElementById('slider2-value').textContent = this.value;
+        });
+    </script>
+<style>
+
+    @media (max-width: 768px) {
+    .left {
+        display: none; /* Hide the left column */
+    }
+    .col-md-2 {
+        display: none; /* Hide the left column space */
+    }
+</style>
+
+</body>
+
+
+</html>
